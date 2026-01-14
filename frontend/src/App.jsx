@@ -2,8 +2,8 @@ import React from 'react'
 
 const App = () => {
   return (
-    <div>
-      
+    <div className='text-green-500'>
+      tsting tailwind wwe is best  
     </div>
   )
 }
