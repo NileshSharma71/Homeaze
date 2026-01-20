@@ -30,17 +30,12 @@ import doc12 from './doc12.png'
 import doc13 from './doc13.png'
 import doc14 from './doc14.png'
 import doc15 from './doc15.png'
-import doc16 from './doc16.png'
-import doc17 from './doc17.png'
-import doc18 from './doc18.png'
-import doc19 from './doc19.png'
-import cleaner from './cleaner.svg'
-import electrician from './electrician.svg'
-import mechanic from './mechanic.svg'
-import outdoor from './outdoor.svg'
-import personal from './personal.svg'
-import plumber from './plumber.svg'
-import repair from './repair.svg'
+import Dermatologist from './Dermatologist.svg'
+import Gastroenterologist from './Gastroenterologist.svg'
+import General_physician from './General_physician.svg'
+import Gynecologist from './Gynecologist.svg'
+import Neurologist from './Neurologist.svg'
+import Pediatricians from './Pediatricians.svg'
 
 
 export const assets = {
@@ -65,32 +60,28 @@ export const assets = {
 
 export const specialityData = [
     {
-        speciality: 'mechanic',
-        image: mechanic
+        speciality: 'General physician',
+        image: General_physician
     },
     {
-        speciality: 'cleaner',
-        image: cleaner
+        speciality: 'Gynecologist',
+        image: Gynecologist
     },
     {
-        speciality: 'plumber',
-        image: plumber
+        speciality: 'Dermatologist',
+        image: Dermatologist
     },
     {
-        speciality: 'electrician',
-        image: electrician
+        speciality: 'Pediatricians',
+        image: Pediatricians
     },
     {
-        speciality: 'repair',
-        image: repair
+        speciality: 'Neurologist',
+        image: Neurologist
     },
     {
-        speciality: 'outdoor',
-        image: outdoor
-    },
-    {
-        speciality: 'personal',
-        image: personal
+        speciality: 'Gastroenterologist',
+        image: Gastroenterologist
     },
 ]
 
