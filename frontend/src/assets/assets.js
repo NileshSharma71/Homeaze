@@ -308,7 +308,7 @@ export const workers = [
     {
         _id: 'doc16',
         name: 'Himanshu',
-        image: doc15,
+        image: doc16,
         speciality: 'outdoor',
         degree: 'ITI',
         experience: '1 Years',
@@ -322,7 +322,7 @@ export const workers = [
     {
         _id: 'doc17',
         name: 'Sanjay',
-        image: doc15,
+        image: doc17,
         speciality: 'personal',
         degree: 'BA',
         experience: '2 Years',
@@ -336,7 +336,7 @@ export const workers = [
     {
         _id: 'doc18',
         name: 'Ajay',
-        image: doc15,
+        image: doc18,
         speciality: 'personal',
         degree: 'B.sc',
         experience: '3 Years',
@@ -350,7 +350,7 @@ export const workers = [
     {
         _id: 'doc19',
         name: 'Neha',
-        image: doc15,
+        image: doc19,
         speciality: 'personal',
         degree: 'ITI',
         experience: '4 Years',
