@@ -94,7 +94,7 @@ export const specialityData = [
     },
 ]
 
-export const doctors = [
+export const workers = [
     {
         _id: 'doc1',
         name: 'Rahul',
@@ -303,6 +303,62 @@ export const doctors = [
         address: {
             line1: '37th Cross, Bihar',
             line2: 'Circle, Ring Road, Dps vally'
+        }
+    },
+    {
+        _id: 'doc16',
+        name: 'Himanshu',
+        image: doc15,
+        speciality: 'outdoor',
+        degree: 'ITI',
+        experience: '1 Years',
+        about: 'Provide outdoor services , master in roof-top management',
+        fees: '302 Rs per hrs',
+        address: {
+            line1: '37th Cross, Assam',
+            line2: 'Circle, Ring Road, tree vally'
+        }
+    },
+    {
+        _id: 'doc17',
+        name: 'Sanjay',
+        image: doc15,
+        speciality: 'personal',
+        degree: 'BA',
+        experience: '2 Years',
+        about: 'Provide personal services , master in mehandi designing',
+        fees: '303 Rs per hrs',
+        address: {
+            line1: '37th Cross, Bihar',
+            line2: 'Circle, Ring Road, 22feet road'
+        }
+    },
+    {
+        _id: 'doc18',
+        name: 'Ajay',
+        image: doc15,
+        speciality: 'personal',
+        degree: 'B.sc',
+        experience: '3 Years',
+        about: 'Provide personal services , master in body tattoing',
+        fees: '304 Rs per hrs',
+        address: {
+            line1: '37th Cross, Bihar',
+            line2: 'Circle, Ring Road, 89 street'
+        }
+    },
+    {
+        _id: 'doc19',
+        name: 'Neha',
+        image: doc15,
+        speciality: 'personal',
+        degree: 'ITI',
+        experience: '4 Years',
+        about: 'Provide personal services , good skill in hair cutting',
+        fees: '305 Rs per hrs',
+        address: {
+            line1: '37th Cross, Bihar',
+            line2: 'Circle, Ring Road, 77 street'
         }
     },
 ]
