@@ -65,31 +65,31 @@ export const assets = {
 
 export const specialityData = [
     {
-        speciality: 'mechanic',
+        speciality: 'Mechanic',
         image: mechanic
     },
     {
-        speciality: 'cleaner',
+        speciality: 'Cleaner',
         image: cleaner
     },
     {
-        speciality: 'plumber',
+        speciality: 'Plumber',
         image: plumber
     },
     {
-        speciality: 'electrician',
+        speciality: 'Electrician',
         image: electrician
     },
     {
-        speciality: 'repair',
+        speciality: 'Repair',
         image: repair
     },
     {
-        speciality: 'outdoor',
+        speciality: 'Outdoor',
         image: outdoor
     },
     {
-        speciality: 'personal',
+        speciality: 'Personal',
         image: personal
     },
 ]
