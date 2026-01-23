@@ -1,9 +1,11 @@
 import React from 'react'
+import Header from '../components/Header'
 
 const Home = () => {
   return (
     <div>
-        wwe is best in the world
+      <Header></Header>
+      wwe is best in the world
     </div>
   )
 }

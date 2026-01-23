@@ -13,7 +13,9 @@ import Navbar from './components/Navbar'
 const App = () => {
   return (
     <div className='mx-4 sm:mx-[10%]'>
+      {/* visible the navbar */}
       <Navbar></Navbar>
+      
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/workers' element={<Workers />} />
