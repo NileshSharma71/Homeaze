@@ -1,9 +1,10 @@
-import React from 'react'
-import { workers } from '../assets/assets'
+import React, { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { AppContext } from '../context/AppContext';
 
 const TopWorkers = () => {
     const navigate = useNavigate(); //this is use for the navigation
+    const {workers} = useContext(AppContext); //we get workers
 
   return (
     <div className='flex flex-col items-center gap-4 my-16 text-[#262626] md:mx-10'>
@@ -24,7 +25,7 @@ const TopWorkers = () => {
                 </div>
             ))}
         </div>
-        <button className='bg-[#EAEFFF] text-gray-600 px-12 py-3 rounded-full mt-10'>more</button>
+        <button onClick={() => { navigate('/workers'); scrollTo(0, 0) }} className='bg-[#EAEFFF] text-gray-600 px-12 py-3 rounded-full mt-10'>more</button>
 
     </div>
   )
