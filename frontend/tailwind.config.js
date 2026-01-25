@@ -8,7 +8,10 @@ export default {
     extend: {
       colors:{
         'primary':"#006400", //darkgreen
-      }
+      },
+      gridTemplateColumns: {
+        'auto': 'repeat(auto-fit, minmax(200px, 1fr))', //for responsive grid in TopWorkers.jsx
+      },
     },
   },
   plugins: [],
