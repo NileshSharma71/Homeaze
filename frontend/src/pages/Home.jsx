@@ -11,7 +11,6 @@ const Home = () => {
       <SpecialityMenu></SpecialityMenu>
       <TopWorkers></TopWorkers>
       <Banner></Banner>
-      wwe is best in the world
     </div>
   )
 }

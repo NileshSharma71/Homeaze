@@ -1,6 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap'); /*import google fonts*/
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* style our website font */
+*{
+    font-family: Outfit;
+}
 
 /* get the underline when click on navbar link */
 .active hr{
