@@ -13,7 +13,7 @@ const Workers = () => {
 
   const applyFilter = () => {
       if (speciality) {
-        setFilterDoc(workers.filter(doc => doc.speciality?.toLowerCase().trim() === speciality.toLowerCase().trim()))
+        setFilterDoc(workers.filter(doc => doc.speciality?.toLowerCase().trim() === speciality.toLowerCase().trim())) //this check the speciality
       } else {
         setFilterDoc(workers)
       }
@@ -25,16 +25,17 @@ const Workers = () => {
 
   return (
     <div>
-        <p>Browse through the workers specialist.</p>
-        <div>
-          <div>
-            <p>Mechanic</p>
-            <p>Cleaner</p>
-            <p>Plumber</p>
-            <p>Electrician</p>
-            <p>Repair</p>
-            <p>Outdoor</p>
-            <p>Personal</p>
+        <p className='text-gray-600'>Browse through the workers specialist.</p>
+        <div className='flex flex-col sm:flex-row items-start gap-5 mt-5'>
+          <div className='flex flex-col gap-4 text-sm text-gray-600'>
+            <p onClick={() => navigate('/workers')} className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${!speciality ? 'bg-[#E2E5FF] text-black' : ''}`}>All Workers</p>
+            <p onClick={() => speciality === 'Mechanic' ? navigate('/workers') : navigate('/workers/Mechanic')} className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${speciality === 'Mechanic' ? 'bg-[#E2E5FF] text-black ' : ''}`}>Mechanic</p>
+            <p onClick={() => speciality === 'Cleaner' ? navigate('/workers') : navigate('/workers/Cleaner')} className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${speciality === 'Cleaner' ? 'bg-[#E2E5FF] text-black ' : ''}`}>Cleaner</p>
+            <p onClick={() => speciality === 'Plumber' ? navigate('/workers') : navigate('/workers/Plumber')} className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${speciality === 'Plumber' ? 'bg-[#E2E5FF] text-black ' : ''}`}>Plumber</p>
+            <p onClick={() => speciality === 'Electrician' ? navigate('/workers') : navigate('/workers/Electrician')} className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${speciality === 'Electrician' ? 'bg-[#E2E5FF] text-black ' : ''}`}>Electrician</p>
+            <p onClick={() => speciality === 'Repair' ? navigate('/workers') : navigate('/workers/Repair')} className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${speciality === 'Repair' ? 'bg-[#E2E5FF] text-black ' : ''}`}>Repair</p>
+            <p onClick={() => speciality === 'Outdoor' ? navigate('/workers') : navigate('/workers/Outdoor')} className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${speciality === 'Outdoor' ? 'bg-[#E2E5FF] text-black ' : ''}`}>Outdoor</p>
+            <p onClick={() => speciality === 'Personal' ? navigate('/workers') : navigate('/workers/Personal')} className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${speciality === 'Personal' ? 'bg-[#E2E5FF] text-black ' : ''}`}>Personal</p>
           </div>
           <div className='w-full grid grid-cols-auto gap-4 gap-y-6'>
             {
