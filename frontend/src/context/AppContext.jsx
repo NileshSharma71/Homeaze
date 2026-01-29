@@ -5,7 +5,7 @@ export const AppContext = createContext()
 
 const AppContextProvider = (props) => {
 
-    const currencySymbol = '$'
+    const currencySymbol = '$' //use to include currency symbol throughout the app
 
     const value = {
         workers,
