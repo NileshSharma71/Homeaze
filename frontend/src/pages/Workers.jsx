@@ -37,7 +37,7 @@ const Workers = () => {
             <p onClick={() => speciality === 'Outdoor' ? navigate('/workers') : navigate('/workers/Outdoor')} className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${speciality === 'Outdoor' ? 'bg-[#E2E5FF] text-black ' : ''}`}>Outdoor</p>
             <p onClick={() => speciality === 'Personal' ? navigate('/workers') : navigate('/workers/Personal')} className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${speciality === 'Personal' ? 'bg-[#E2E5FF] text-black ' : ''}`}>Personal</p>
           </div>
-          <div className='w-full grid grid-cols-auto gap-4 gap-y-6'>
+          <div className='w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 pt-5 px-3 sm:px-0'>{/* adding css prop in img so that it not stretch */}
             {
               filterDoc.map((item, index) => (
                 <div onClick={() => navigate(`/booking/${item._id}`)}  className='border border-[#C9D8FF] rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500' key={index}>

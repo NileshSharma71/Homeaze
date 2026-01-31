@@ -13,7 +13,7 @@ const TopWorkers = () => {
         {/* now we want 10 workers from assets files*/}
         <div className='w-full grid grid-cols-auto gap-4 pt-5 gap-y-6 px-3 sm:px-0'>
             {workers.slice(0, 10).map((item, index) => (
-                <div onClick={() => navigate(`/booking/${item._id}`)}  className='border border-[#C9D8FF] rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500' key={index}>
+                <div onClick={() => {navigate(`/booking/${item._id}`); scrollTo(0,0)}}  className='border border-[#C9D8FF] rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500' key={index}>
                     <img className='w-full h-48 object-cover bg-[#EAEFFF]' src={item.image} alt="" />{/* worker image 'object-cover use' */}
                     <div className='p-4'>
                         <div className='flex items-center gap-2 text-sm text-center text-green-500'>

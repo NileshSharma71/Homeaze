@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { AppContext } from '../context/AppContext'
 import { assets } from '../assets/assets'
+import RelatedWorkers from '../components/RelatedWorkers'
 
 const Booking = () => {
 
@@ -15,13 +16,13 @@ const Booking = () => {
   const [slotIndex, setSlotIndex] = useState(0)
   const [slotTime, setSlotTime] = useState('')
 
-  // Fetch worker info
+  // fetch worker info
   const fetchDocInfo = () => {
     const info = workers.find(doc => doc._id === workId)
     setDocInfo(info)
   }
 
-  // Generate available slots
+  // generate available slots
   const getAvailableSlots = () => {
     if (!docInfo) return
 
@@ -74,7 +75,7 @@ const Booking = () => {
     }
   }
 
-  // Dummy booking handler (backend later)
+  // dummy booking handler (backend later)
   const bookAppointment = () => {
     if (!slotTime) {
       alert('Please select a time slot')
@@ -94,7 +95,7 @@ const Booking = () => {
   return docInfo && (
     <div>
 
-      {/* Worker Details */}
+      {/* worker details */}
       <div className='flex flex-col sm:flex-row gap-4'>
         <div>
           <img
@@ -128,17 +129,17 @@ const Booking = () => {
 
           <p className='text-gray-600 font-medium mt-4'>
             Booking fee:
-            <span className='text-gray-800'> {currencySymbol}{docInfo.fees}</span>
+            <span className='text-gray-800'> {docInfo.fees}</span>
           </p>
         </div>
       </div>
 
-      {/* Booking Slots */}
+      {/* booking slots */}
       <div className='sm:ml-72 sm:pl-4 mt-8 font-medium text-[#565656]'>
 
         <p>Booking slots</p>
 
-        {/* Days */}
+        {/* days */}
         <div className='flex gap-3 items-center w-full overflow-x-scroll mt-4'>
           {docSlots.map((item, index) => (
             <div
@@ -159,7 +160,7 @@ const Booking = () => {
           ))}
         </div>
 
-        {/* Time Slots */}
+        {/* time slots */}
         <div className='flex items-center gap-3 w-full overflow-x-scroll mt-4'>
           {docSlots[slotIndex]?.map((item, index) => (
             <p
@@ -180,10 +181,13 @@ const Booking = () => {
           onClick={bookAppointment}
           className='bg-primary text-white text-sm font-light px-20 py-3 rounded-full my-6'
         >
-          Book an appointment
+          Book an Service
         </button>
 
       </div>
+          {/* listing related workers */}
+          <RelatedWorkers workId={workId} speciality={docInfo.speciality}></RelatedWorkers>
+
     </div>
   )
 }
