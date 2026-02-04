@@ -6,7 +6,8 @@ const Workers = () => {
 
   const{speciality} = useParams()
   const [filterDoc,setFilterDoc] = useState([])
-  const navigate = useNavigate(); //use for navigate to doc
+  const [showFilter,setShowFilter] = useState(false) //for mobile view filter
+  const navigate = useNavigate(); //use for navigate to doc 
 
   const{workers} = useContext(AppContext)
 
@@ -27,7 +28,8 @@ const Workers = () => {
     <div>
         <p className='text-gray-600'>Browse through the workers specialist.</p>
         <div className='flex flex-col sm:flex-row items-start gap-5 mt-5'>
-          <div className='flex flex-col gap-4 text-sm text-gray-600'>
+          <button className={`py-1 px-3 border rounded text-sm transition-all sm:hidden ${showFilter ? 'bg-primary text-white' : ''}`} onClick={()=>setShowFilter(prev => !prev)}>see categories</button>
+          <div className={`flex-col gap-4 text-sm text-gray-600 ${showFilter ? 'flex' : 'hidden sm:flex'} `}> {/* adding sm:flex so that in mobile view it hide and in desktop it show */}
             <p onClick={() => navigate('/workers')} className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${!speciality ? 'bg-[#E2E5FF] text-black' : ''}`}>All Workers</p>
             <p onClick={() => speciality === 'Mechanic' ? navigate('/workers') : navigate('/workers/Mechanic')} className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${speciality === 'Mechanic' ? 'bg-[#E2E5FF] text-black ' : ''}`}>Mechanic</p>
             <p onClick={() => speciality === 'Cleaner' ? navigate('/workers') : navigate('/workers/Cleaner')} className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${speciality === 'Cleaner' ? 'bg-[#E2E5FF] text-black ' : ''}`}>Cleaner</p>
