@@ -57,7 +57,22 @@ const Navbar = () => {
           </div>
           :<button onClick={() => navigate('/login')} className='bg-primary text-white px-8 py-3 rounded-full font-light hidden md:block'>Create Account</button>
         }
-        
+        <img onClick={() => setShowMenu(true)} className='w-6 md:hidden' src={assets.menu_icon} alt="" />
+
+        {/* ---- mobile menu show when screen width becomes  ---- */}
+        <div className={`md:hidden right-0 top-0 bottom-0 z-20 overflow-hidden bg-white transition-all ${showMenu ? 'fixed w-full' : 'h-0 w-0'}`}>
+          <div className='flex items-center justify-between px-5 py-6'>
+            <p className='text-xl font-semibold text-primary'>Homeaze</p>
+            <img onClick={() => setShowMenu(false)} src={assets.cross_icon} className='w-7' alt="" />
+          </div>
+          <ul className='flex flex-col items-center gap-2 mt-5 px-5 text-lg font-medium'>
+            <NavLink onClick={() => setShowMenu(false)} to='/'><p className='px-4 py-2 rounded full inline-block'>HOME</p></NavLink>
+            <NavLink onClick={() => setShowMenu(false)} to='/workers' ><p className='px-4 py-2 rounded full inline-block'>ALL WORKERS</p></NavLink>
+            <NavLink onClick={() => setShowMenu(false)} to='/about' ><p className='px-4 py-2 rounded full inline-block'>ABOUT</p></NavLink>
+            <NavLink onClick={() => setShowMenu(false)} to='/contact' ><p className='px-4 py-2 rounded full inline-block'>CONTACT</p></NavLink>
+          </ul>
+        </div>
+
       </div>
     </div>
   )
