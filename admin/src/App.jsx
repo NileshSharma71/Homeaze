@@ -1,8 +1,12 @@
 import React from 'react'
+import Login from './pages/login'
 
 const App = () => {
   return (
-    <div className='text-green-500'>App and tailwind is working</div>
+    <div>
+      <Login />
+      app and tailwind is working
+    </div>
   )
 }
 
