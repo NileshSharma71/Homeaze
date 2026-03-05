@@ -5,10 +5,10 @@ import authAdmin from '../middlewares/authAdmin.js'
 
 const adminRouter = express.Router()
 
-adminRouter.post('/add-worker',authAdmin, upload.single('image'), addWorker) //add-worker route
+adminRouter.post('/add-worker',authAdmin, upload.single('image'), addWorker) //add-worker image route
 
-adminRouter.post('/login',loginAdmin) //login route
+adminRouter.post('/login',loginAdmin) //login detail route
 
-adminRouter.post('/all-workers',authAdmin, allWorkers) //get all workers route
+adminRouter.get('/all-workers',authAdmin, allWorkers) //get all workers route
 
 export default adminRouter
