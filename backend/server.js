@@ -4,6 +4,7 @@ import 'dotenv/config'
 import connectDB from './config/mongodb.js'
 import connectCloudinary from './config/cloudinary.js'
 import adminRouter from './routes/adminRoute.js'
+import workerRouter from './routes/workerRoute.js'
 
 //app config
 const app = express()
@@ -18,6 +19,8 @@ app.use(cors())
 //api endpoints
 app.use("/api/admin", adminRouter) //admin routes
 // localhost:4000/api/admin/add-worker
+
+app.use("/api/worker", workerRouter) //worker routes
 
 
 app.get("/", (req, res) => {

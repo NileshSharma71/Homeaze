@@ -17,4 +17,18 @@ const changeAvailablity = async (req, res) => {
     }
 }
 
-export { changeAvailablity }
+// API to get all worker list for Frontend
+const workerList = async (req, res) => {
+    try {
+
+        const workers = await workerModel.find({}).select(['-password', '-email'])
+        res.json({ success: true, workers })
+
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, message: error.message })
+    }
+
+}
+
+export { changeAvailablity, workerList}
