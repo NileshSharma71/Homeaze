@@ -29,10 +29,28 @@ const AdminContextProvider = (props) => {
         }
     }
 
+    // Function to change worker availablity using API
+    const changeAvailability = async (workerId) => {
+        try {
+
+            const { data } = await axios.post(backendUrl + '/api/admin/change-availability', { workerId }, { headers: { aToken } })
+            if (data.success) {
+                toast.success(data.message)
+                getAllWorkers()
+            } else {
+                toast.error(data.message)
+            }
+
+        } catch (error) {
+            console.log(error)
+            toast.error(error.message)
+        }
+    }
+
     const value = {
         aToken, setAToken,
-        backendUrl,workers,
-        getAllWorkers
+        backendUrl, workers,
+        getAllWorkers, changeAvailability
     }
     return (
         <AdminContext.Provider value={value}>

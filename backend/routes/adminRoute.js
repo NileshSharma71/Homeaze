@@ -2,6 +2,7 @@ import express from 'express'
 import { addWorker , loginAdmin, allWorkers} from '../controllers/adminController.js'
 import upload from '../middlewares/multer.js'
 import authAdmin from '../middlewares/authAdmin.js'
+import { changeAvailablity } from '../controllers/workerController.js'
 
 const adminRouter = express.Router()
 
@@ -10,5 +11,7 @@ adminRouter.post('/add-worker',authAdmin, upload.single('image'), addWorker) //a
 adminRouter.post('/login',loginAdmin) //login detail route
 
 adminRouter.get('/all-workers',authAdmin, allWorkers) //get all workers route
+
+adminRouter.post('/change-availability',authAdmin, changeAvailablity) //change worker availability route
 
 export default adminRouter
