@@ -3,7 +3,7 @@ import { assets } from "../../assets/assets";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { AdminContext } from "../../context/AdminContext";
-import { AppContext } from "../../context/AppContext";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const AddWorker = () => {
   const [docImg, setDocImg] = useState(false);
