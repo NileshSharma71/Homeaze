@@ -11,11 +11,7 @@ const AppContextProvider = (props) => {
     const backendUrl = import.meta.env.VITE_BACKEND_URL //use to include backend url throughout the app
     const [workers, setWorkers] = useState([])
 
-    const value = {
-        workers,
-        currencySymbol,
-        backendUrl
-    }
+    const [token,setToken] = useState(localStorage.getItem('token') ? localStorage.getItem('token') : false)
 
     // Getting workers using API
     const getWorkersData = async () => {
@@ -34,6 +30,14 @@ const AppContextProvider = (props) => {
             toast.error(error.message)
         }
 
+    }
+
+    const value = {
+        workers,
+        currencySymbol,
+        backendUrl,
+        token, setToken,
+        backendUrl
     }
 
     useEffect(() => {
