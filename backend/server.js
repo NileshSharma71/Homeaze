@@ -5,6 +5,7 @@ import connectDB from './config/mongodb.js'
 import connectCloudinary from './config/cloudinary.js'
 import adminRouter from './routes/adminRoute.js'
 import workerRouter from './routes/workerRoute.js'
+import userRouter from './routes/userRoute.js'
 
 //app config
 const app = express()
@@ -21,6 +22,8 @@ app.use("/api/admin", adminRouter) //admin routes
 // localhost:4000/api/admin/add-worker
 
 app.use("/api/worker", workerRouter) //worker routes
+
+app.use("/api/user", userRouter) //user routes
 
 
 app.get("/", (req, res) => {

@@ -129,7 +129,8 @@ const Booking = () => {
 
           <p className='text-gray-600 font-medium mt-4'>
             Booking fee:
-            <span className='text-gray-800'> {docInfo.fees}</span>
+            <span className='text-gray-800'> {currencySymbol}{docInfo.fees} </span>
+            per hrs
           </p>
         </div>
       </div>
