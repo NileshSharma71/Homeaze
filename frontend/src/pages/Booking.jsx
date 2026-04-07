@@ -1,13 +1,22 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { AppContext } from '../context/AppContext'
 import { assets } from '../assets/assets'
 import RelatedWorkers from '../components/RelatedWorkers'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const Booking = () => {
 
   const { workId } = useParams()
-  const { workers, currencySymbol } = useContext(AppContext)
+
+  const {
+    workers,
+    currencySymbol,
+    backendUrl,
+    token,
+    getWorkersData
+  } = useContext(AppContext)
 
   const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
 
@@ -16,7 +25,9 @@ const Booking = () => {
   const [slotIndex, setSlotIndex] = useState(0)
   const [slotTime, setSlotTime] = useState('')
 
-  // fetch worker info
+  const navigate = useNavigate()
+
+  // fetch worker details
   const fetchDocInfo = () => {
     const info = workers.find(doc => doc._id === workId)
     setDocInfo(info)
@@ -27,6 +38,7 @@ const Booking = () => {
     if (!docInfo) return
 
     setDocSlots([])
+
     let today = new Date()
 
     for (let i = 0; i < 7; i++) {
@@ -38,8 +50,14 @@ const Booking = () => {
       endTime.setHours(21, 0, 0, 0)
 
       if (today.toDateString() === currentDate.toDateString()) {
-        currentDate.setHours(currentDate.getHours() > 10 ? currentDate.getHours() + 1 : 10)
-        currentDate.setMinutes(currentDate.getMinutes() > 30 ? 30 : 0)
+        currentDate.setHours(
+          currentDate.getHours() > 10
+            ? currentDate.getHours() + 1
+            : 10
+        )
+        currentDate.setMinutes(
+          currentDate.getMinutes() > 30 ? 30 : 0
+        )
       } else {
         currentDate.setHours(10, 0, 0, 0)
       }
@@ -47,6 +65,7 @@ const Booking = () => {
       let timeSlots = []
 
       while (currentDate < endTime) {
+
         let formattedTime = currentDate.toLocaleTimeString([], {
           hour: '2-digit',
           minute: '2-digit'
@@ -56,7 +75,7 @@ const Booking = () => {
         let month = currentDate.getMonth() + 1
         let year = currentDate.getFullYear()
 
-        const slotDate = day + "" + month + "" + year
+        const slotDate = day + "_" + month + "_" + year
 
         const isSlotAvailable =
           !docInfo.slots_booked?.[slotDate]?.includes(formattedTime)
@@ -75,15 +94,56 @@ const Booking = () => {
     }
   }
 
-  // dummy booking handler (backend later)
-  const bookAppointment = () => {
-    if (!slotTime) {
-      alert('Please select a time slot')
-      return
+  // book appointment
+  const bookAppointment = async () => {
+
+    if (!token) {
+      toast.warning('Login to book service')
+      return navigate('/login')
     }
-    console.log('Booked:', docInfo.name, slotIndex, slotTime)
+
+    if (!slotTime) {
+      return toast.warning('Select a time slot')
+    }
+
+    if (!docSlots[slotIndex]?.length) {
+      return toast.error('No slots available')
+    }
+
+    const date = docSlots[slotIndex][0].datetime
+
+    let day = date.getDate()
+    let month = date.getMonth() + 1
+    let year = date.getFullYear()
+
+    const slotDate = day + "_" + month + "_" + year
+
+    try {
+      const { data } = await axios.post(
+        backendUrl + '/api/user/book-appointment',
+        {
+          docId: workId,  
+          slotDate,
+          slotTime
+        },
+        { headers: { token } }
+      )
+
+      if (data.success) {
+        toast.success(data.message)
+        getWorkersData()   
+        navigate('/my-bookings')
+      } else {
+        toast.error(data.message)
+      }
+
+    } catch (error) {
+      console.log(error)
+      toast.error(error.message)
+    }
   }
 
+  // useEffects
   useEffect(() => {
     fetchDocInfo()
   }, [workers, workId])
@@ -97,51 +157,35 @@ const Booking = () => {
 
       {/* worker details */}
       <div className='flex flex-col sm:flex-row gap-4'>
-        <div>
-          <img
-            className='bg-primary w-full sm:max-w-72 rounded-lg'
-            src={docInfo.image}
-            alt=""
-          />
-        </div>
+        <img
+          className='bg-primary w-full sm:max-w-72 rounded-lg'
+          src={docInfo.image}
+          alt=""
+        />
 
-        <div className='flex-1 border border-[#ADADAD] rounded-lg p-8 bg-white mx-2 sm:mx-0 mt-[-80px] sm:mt-0'>
-          <p className='flex items-center gap-2 text-3xl font-medium text-gray-900'>
+        <div className='flex-1 border rounded-lg p-8 bg-white'>
+          <p className='text-3xl font-medium flex items-center gap-2'>
             {docInfo.name}
             <img className='w-5' src={assets.verified_icon} alt="" />
           </p>
 
-          <div className='flex items-center gap-2 mt-1 text-gray-600'>
-            <p>{docInfo.degree} - {docInfo.speciality}</p>
-            <button className='py-0.5 px-2 border text-xs rounded-full'>
-              {docInfo.experience}
-            </button>
-          </div>
+          <p className='text-gray-600 mt-1'>
+            {docInfo.degree} - {docInfo.speciality}
+          </p>
 
-          <div>
-            <p className='flex items-center gap-1 text-sm font-medium text-[#262626] mt-3'>
-              About <img src={assets.info_icon} alt="" />
-            </p>
-            <p className='text-sm text-gray-600 mt-1'>
-              {docInfo.about}
-            </p>
-          </div>
+          <p className='mt-3 text-sm'>{docInfo.about}</p>
 
-          <p className='text-gray-600 font-medium mt-4'>
-            Booking fee:
-            <span className='text-gray-800'> {currencySymbol}{docInfo.fees} </span>
-            per hrs
+          <p className='mt-4'>
+            Fee: {currencySymbol}{docInfo.fees} per hrs
           </p>
         </div>
       </div>
 
-      {/* booking slots */}
-      <div className='sm:ml-72 sm:pl-4 mt-8 font-medium text-[#565656]'>
-
-        <p>Booking slots</p>
+      {/* slots */}
+      <div className='mt-8'>
 
         {/* days */}
-        <div className='flex gap-3 items-center w-full overflow-x-scroll mt-4'>
+        <div className='flex gap-3 overflow-x-scroll'>
           {docSlots.map((item, index) => (
             <div
               key={index}
@@ -149,10 +193,10 @@ const Booking = () => {
                 setSlotIndex(index)
                 setSlotTime('')
               }}
-              className={`text-center py-6 min-w-16 rounded-full cursor-pointer ${
+              className={`p-4 rounded-full cursor-pointer ${
                 slotIndex === index
                   ? 'bg-primary text-white'
-                  : 'border border-[#DDDDDD]'
+                  : 'border'
               }`}
             >
               <p>{item[0] && daysOfWeek[item[0].datetime.getDay()]}</p>
@@ -161,34 +205,36 @@ const Booking = () => {
           ))}
         </div>
 
-        {/* time slots */}
-        <div className='flex items-center gap-3 w-full overflow-x-scroll mt-4'>
+        {/* times */}
+        <div className='flex gap-3 mt-4 overflow-x-scroll'>
           {docSlots[slotIndex]?.map((item, index) => (
             <p
               key={index}
               onClick={() => setSlotTime(item.time)}
-              className={`text-sm font-light flex-shrink-0 px-5 py-2 rounded-full cursor-pointer ${
+              className={`px-5 py-2 rounded-full cursor-pointer ${
                 item.time === slotTime
                   ? 'bg-primary text-white'
-                  : 'text-[#949494] border border-[#B4B4B4]'
+                  : 'border'
               }`}
             >
-              {item.time.toLowerCase()}
+              {item.time}
             </p>
           ))}
         </div>
 
         <button
           onClick={bookAppointment}
-          className='bg-primary text-white text-sm font-light px-20 py-3 rounded-full my-6'
+          className='bg-primary text-white px-6 py-3 rounded-full mt-6'
         >
-          Book an Service
+          Book Service
         </button>
 
       </div>
-          {/* listing related workers */}
-          <RelatedWorkers workId={workId} speciality={docInfo.speciality}></RelatedWorkers>
 
+      <RelatedWorkers
+        workId={workId}
+        speciality={docInfo.speciality}
+      />
     </div>
   )
 }

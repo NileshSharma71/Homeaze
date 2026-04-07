@@ -2,122 +2,189 @@ import bcrypt from "bcrypt";
 import validator from "validator";
 import userModel from "../models/userModel.js";
 import jwt from "jsonwebtoken";
-import { v2 as cloudinary } from 'cloudinary'
+import { v2 as cloudinary } from "cloudinary";
+import workerModel from "../models/workerModel.js";
+import bookingModel from "../models/bookingModel.js";
 
-
-// API to register user
+// api to register user
 const registerUser = async (req, res) => {
-
     try {
         const { name, email, password } = req.body;
 
-        // checking for all data to register user
         if (!name || !email || !password) {
-            return res.json({ success: false, message: 'Missing Details' })
+            return res.json({ success: false, message: "Missing Details" });
         }
 
-        // validating email format
         if (!validator.isEmail(email)) {
-            return res.json({ success: false, message: "Please enter a valid email" })
+            return res.json({ success: false, message: "Invalid Email" });
         }
 
-        // validating strong password
         if (password.length < 8) {
-            return res.json({ success: false, message: "Please enter a strong password" })
+            return res.json({ success: false, message: "Weak Password" });
         }
 
-        // hashing user password
-        const salt = await bcrypt.genSalt(10); // the more no. round the more time it will take
-        const hashedPassword = await bcrypt.hash(password, salt)
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
-        const userData = {
+        const user = await userModel.create({
             name,
             email,
             password: hashedPassword,
-        }
+        });
 
-        const newUser = new userModel(userData)
-        const user = await newUser.save()
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET)
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
-        res.json({ success: true, token })
+        res.json({ success: true, token });
 
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+        res.json({ success: false, message: error.message });
     }
-}
+};
 
-// API to login user
+// api to login user
 const loginUser = async (req, res) => {
-
     try {
         const { email, password } = req.body;
-        const user = await userModel.findOne({ email })
+
+        const user = await userModel.findOne({ email });
 
         if (!user) {
-            return res.json({ success: false, message: "User does not exist" })
+            return res.json({ success: false, message: "User not found" });
         }
 
-        const isMatch = await bcrypt.compare(password, user.password)
+        const isMatch = await bcrypt.compare(password, user.password);
 
-        if (isMatch) {
-            const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET)
-            res.json({ success: true, token })
+        if (!isMatch) {
+            return res.json({ success: false, message: "Invalid credentials" });
         }
-        else {
-            res.json({ success: false, message: "Invalid credentials" })
-        }
+
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+
+        res.json({ success: true, token });
+
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+        res.json({ success: false, message: error.message });
     }
-}
+};
 
-// API to get user profile data
+// api to get profile
 const getProfile = async (req, res) => {
-
     try {
-        const userId = req.userId
-        const userData = await userModel.findById(userId).select('-password')
+        const userId = req.userId; // ✅ FIXED
 
-        res.json({ success: true, userData })
+        const userData = await userModel
+            .findById(userId)
+            .select("-password");
+
+        res.json({ success: true, userData });
 
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+        res.json({ success: false, message: error.message });
     }
-}
+};
 
-// API to update user profile
+// api toupdate profile
 const updateProfile = async (req, res) => {
-
     try {
-        const userId = req.userId
-        const {name, phone, address, dob, gender } = req.body
-        const imageFile = req.file
+        const userId = req.userId; // ✅ FIXED
+        const { name, phone, address, dob, gender } = req.body;
 
         if (!name || !phone || !dob || !gender) {
-            return res.json({ success: false, message: "Data Missing" })  
+            return res.json({ success: false, message: "Missing Data" });
         }
 
-        await userModel.findByIdAndUpdate(userId, { name, phone, address: JSON.parse(address), dob, gender })
+        await userModel.findByIdAndUpdate(userId, {
+            name,
+            phone,
+            address: address ? JSON.parse(address) : {}, // ✅ SAFE
+            dob,
+            gender,
+        });
 
-        if (imageFile) {
-
-            // upload image to cloudinary
-            const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" })
-            const imageURL = imageUpload.secure_url
-
-            await userModel.findByIdAndUpdate(userId, { image: imageURL })
+        if (req.file) {
+            const upload = await cloudinary.uploader.upload(req.file.path);
+            await userModel.findByIdAndUpdate(userId, {
+                image: upload.secure_url,
+            });
         }
 
-        res.json({ success: true, message: 'Profile Updated' })
+        res.json({ success: true, message: "Profile Updated" });
 
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+        res.json({ success: false, message: error.message });
     }
-}
+};
 
-export { registerUser, loginUser, getProfile, updateProfile }
+// api to book appointment
+const bookAppointment = async (req, res) => {
+    try {
+        const userId = req.userId; // ✅ FIXED
+        const { docId, slotDate, slotTime } = req.body;
+
+        const worker = await workerModel
+            .findById(docId)
+            .select("-password");
+
+        if (!worker) {
+            return res.json({ success: false, message: "Worker not found" });
+        }
+
+        if (!worker.available) {
+            return res.json({
+                success: false,
+                message: "Worker not available",
+            });
+        }
+
+        let slots_booked = worker.slots_booked || {};
+
+        if (!slots_booked[slotDate]) {
+            slots_booked[slotDate] = [];
+        }
+
+        if (slots_booked[slotDate].includes(slotTime)) {
+            return res.json({
+                success: false,
+                message: "Slot not available",
+            });
+        }
+
+        // book slot
+        slots_booked[slotDate].push(slotTime);
+
+        const user = await userModel
+            .findById(userId)
+            .select("-password");
+
+        const appointment = await bookingModel.create({ // ✅ FIXED MODEL
+            userId,
+            docId,
+            userData: user,
+            docData: worker,
+            amount: worker.fees,
+            slotDate,
+            slotTime,
+            date: Date.now(),
+        });
+
+        await workerModel.findByIdAndUpdate(docId, { slots_booked });
+
+        res.json({
+            success: true,
+            message: "Appointment booked",
+            appointment,
+        });
+
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+};
+
+// export controllers
+export {
+    registerUser,
+    loginUser,
+    getProfile,
+    updateProfile,
+    bookAppointment,
+};
