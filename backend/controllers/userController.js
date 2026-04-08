@@ -180,6 +180,21 @@ const bookAppointment = async (req, res) => {
     }
 };
 
+// API to get user appointments for frontend my-bookings page
+const listAppointment = async (req, res) => {
+    try {
+
+        const  userId  = req.userId; 
+        const appointments = await bookingModel.find({ userId: userId.toString() });
+
+        res.json({ success: true, appointments })
+
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, message: error.message })
+    }
+}
+
 // export controllers
 export {
     registerUser,
@@ -187,4 +202,5 @@ export {
     getProfile,
     updateProfile,
     bookAppointment,
+    listAppointment
 };
