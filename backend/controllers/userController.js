@@ -23,6 +23,12 @@ const registerUser = async (req, res) => {
             return res.json({ success: false, message: "Weak Password" });
         }
 
+        // ✅ ADD THIS BLOCK HERE
+        const existingUser = await userModel.findOne({ email });
+        if (existingUser) {
+            return res.json({ success: false, message: "User already exists" });
+        }
+
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -32,7 +38,11 @@ const registerUser = async (req, res) => {
             password: hashedPassword,
         });
 
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+        const token = jwt.sign(
+            { id: user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: "7d" }
+        );
 
         res.json({ success: true, token });
 
@@ -58,7 +68,11 @@ const loginUser = async (req, res) => {
             return res.json({ success: false, message: "Invalid credentials" });
         }
 
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+        const token = jwt.sign(
+            { id: user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: "7d" }
+        );
 
         res.json({ success: true, token });
 
@@ -184,10 +198,44 @@ const bookAppointment = async (req, res) => {
 const listAppointment = async (req, res) => {
     try {
 
-        const  userId  = req.userId; 
-        const appointments = await bookingModel.find({ userId: userId.toString() });
+        const userId = req.userId;
+        const appointments = await bookingModel.find({ userId });
 
         res.json({ success: true, appointments })
+
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, message: error.message })
+    }
+}
+
+// API to cancel appointment
+const cancelAppointment = async (req, res) => {
+    try {
+
+        const userId = req.userId
+        const { appointmentId } = req.body
+        const appointmentData = await bookingModel.findById(appointmentId)
+
+        // verify appointment user 
+        if (appointmentData.userId.toString() !== userId) {
+            return res.json({ success: false, message: 'Unauthorized action' })
+        }
+
+        await bookingModel.findByIdAndUpdate(appointmentId, { cancelled: true })
+
+        // releasing doctor slot 
+        const { docId, slotDate, slotTime } = appointmentData
+
+        const workerData = await workerModel.findById(docId)
+
+        let slots_booked = workerData.slots_booked
+
+        slots_booked[slotDate] = slots_booked[slotDate].filter(e => e !== slotTime)
+
+        await workerModel.findByIdAndUpdate(docId, { slots_booked })
+
+        res.json({ success: true, message: 'Appointment Cancelled' })
 
     } catch (error) {
         console.log(error)
@@ -202,5 +250,6 @@ export {
     getProfile,
     updateProfile,
     bookAppointment,
-    listAppointment
+    listAppointment,
+    cancelAppointment
 };
