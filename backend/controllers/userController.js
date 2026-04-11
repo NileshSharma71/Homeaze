@@ -5,6 +5,9 @@ import jwt from "jsonwebtoken";
 import { v2 as cloudinary } from "cloudinary";
 import workerModel from "../models/workerModel.js";
 import bookingModel from "../models/bookingModel.js";
+// import stripe from "stripe";
+import razorpay from 'razorpay';
+import crypto from "crypto";
 
 // api to register user
 const registerUser = async (req, res) => {
@@ -243,6 +246,87 @@ const cancelAppointment = async (req, res) => {
     }
 }
 
+// Gateway Initialize
+// const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY)
+const razorpayInstance = new razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+})
+
+// API to make payment of appointment using razorpay
+const paymentRazorpay = async (req, res) => {
+    try {
+        const { appointmentId } = req.body;
+
+        const appointmentData = await bookingModel.findById(appointmentId);
+
+        if (!appointmentData || appointmentData.cancelled) {
+            return res.json({ success: false, message: 'Appointment Cancelled or not found' });
+        }
+
+        if (appointmentData.payment) {
+            return res.json({ success: false, message: "Already Paid" });
+        }
+
+        const options = {
+            amount: appointmentData.amount * 100,
+            currency: "INR",
+            receipt: appointmentId,
+        };
+
+        const order = await razorpayInstance.orders.create(options);
+
+        await bookingModel.findByIdAndUpdate(appointmentId, {
+            razorpayOrderId: order.id
+        });
+
+        res.json({ success: true, order });
+
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+};
+
+// API to verify payment of razorpay
+const verifyRazorpay = async (req, res) => {
+    try {
+        const {
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature
+        } = req.body;
+
+        const crypto = await import("crypto");
+
+        const body = razorpay_order_id + "|" + razorpay_payment_id;
+
+        const expectedSignature = crypto.default
+            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+            .update(body)
+            .digest("hex");
+
+        if (expectedSignature === razorpay_signature) {
+
+            const booking = await bookingModel.findOneAndUpdate(
+                { razorpayOrderId: razorpay_order_id },
+                { payment: true },   // ✅ FIXED HERE
+                { new: true }
+            );
+
+            console.log("Updated Booking:", booking);
+
+            res.json({ success: true });
+
+        } else {
+            res.json({ success: false, message: "Signature mismatch" });
+        }
+
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+};
+
+
 // export controllers
 export {
     registerUser,
@@ -251,5 +335,7 @@ export {
     updateProfile,
     bookAppointment,
     listAppointment,
-    cancelAppointment
+    cancelAppointment,
+    paymentRazorpay,
+    verifyRazorpay
 };

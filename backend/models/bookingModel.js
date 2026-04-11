@@ -11,7 +11,10 @@ const bookingSchema = new mongoose.Schema({
     date: { type: Number, required: true },
     cancelled: { type: Boolean, default: false },
     payment: { type: Boolean, default: false },
-    isCompleted: { type: Boolean, default: false }
+    isCompleted: { type: Boolean, default: false },
+
+    // added
+    razorpayOrderId: { type: String }
 })
 
 const bookingModel = mongoose.models.booking || mongoose.model("booking", bookingSchema)
