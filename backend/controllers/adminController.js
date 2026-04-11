@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt'
 import {v2 as cloudinary} from 'cloudinary'
 import workerModel from '../models/workerModel.js'
 import jwt from "jsonwebtoken";
+import bookingModel from '../models/bookingModel.js';
 
 
 // api for adding worker
@@ -103,4 +104,68 @@ const allWorkers = async (req, res) => {
     }
 }
 
-export {addWorker, loginAdmin, allWorkers}
+// API to get all appointments list
+const appointmentsAdmin = async (req, res) => {
+    try {
+
+        const appointments = await bookingModel.find({})
+        res.json({ success: true, appointments })
+
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, message: error.message })
+    }
+
+}
+
+// API for appointment cancellation
+const appointmentCancel = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+
+    const appointment = await bookingModel.findById(appointmentId);
+
+    if (!appointment) {
+      return res.json({ success: false, message: "Appointment not found" });
+    }
+
+    // 🔥 REMOVE SLOT FROM WORKER
+    const worker = await workerModel.findById(appointment.docId);
+
+    if (worker) {
+      let slots_booked = worker.slots_booked || {};
+
+      if (slots_booked[appointment.slotDate]) {
+        slots_booked[appointment.slotDate] =
+          slots_booked[appointment.slotDate].filter(
+            (time) => time !== appointment.slotTime
+          );
+
+        if (slots_booked[appointment.slotDate].length === 0) {
+          delete slots_booked[appointment.slotDate];
+        }
+
+        await workerModel.findByIdAndUpdate(appointment.docId, {
+          slots_booked,
+        });
+      }
+    }
+
+    // ✅ CANCEL BOOKING
+    appointment.cancelled = true;
+    await appointment.save();
+
+    res.json({
+      success: true,
+      message: "Appointment cancelled & slot updated",
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+
+
+export {addWorker, loginAdmin, allWorkers, appointmentsAdmin, appointmentCancel}

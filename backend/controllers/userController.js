@@ -214,37 +214,55 @@ const listAppointment = async (req, res) => {
 
 // API to cancel appointment
 const cancelAppointment = async (req, res) => {
-    try {
+  try {
+    const { appointmentId } = req.body;
 
-        const userId = req.userId
-        const { appointmentId } = req.body
-        const appointmentData = await bookingModel.findById(appointmentId)
+    const appointment = await bookingModel.findById(appointmentId);
 
-        // verify appointment user 
-        if (appointmentData.userId.toString() !== userId) {
-            return res.json({ success: false, message: 'Unauthorized action' })
+    if (!appointment) {
+      return res.json({ success: false, message: "Appointment not found" });
+    }
+
+    const worker = await workerModel.findById(appointment.docId);
+
+    if (worker) {
+      let slots_booked = worker.slots_booked || {};
+
+      console.log("Before:", slots_booked);
+
+      if (slots_booked[appointment.slotDate]) {
+        slots_booked[appointment.slotDate] =
+          slots_booked[appointment.slotDate].filter(
+            (time) => time !== appointment.slotTime
+          );
+
+        if (slots_booked[appointment.slotDate].length === 0) {
+          delete slots_booked[appointment.slotDate];
         }
 
-        await bookingModel.findByIdAndUpdate(appointmentId, { cancelled: true })
+        console.log("After:", slots_booked);
 
-        // releasing doctor slot 
-        const { docId, slotDate, slotTime } = appointmentData
-
-        const workerData = await workerModel.findById(docId)
-
-        let slots_booked = workerData.slots_booked
-
-        slots_booked[slotDate] = slots_booked[slotDate].filter(e => e !== slotTime)
-
-        await workerModel.findByIdAndUpdate(docId, { slots_booked })
-
-        res.json({ success: true, message: 'Appointment Cancelled' })
-
-    } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+        await workerModel.findByIdAndUpdate(
+          appointment.docId,
+          { slots_booked },
+          { new: true }
+        );
+      }
     }
-}
+
+    appointment.cancelled = true;
+    await appointment.save();
+
+    res.json({
+      success: true,
+      message: "Booking cancelled & slot updated",
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 
 // Gateway Initialize
 // const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY)
@@ -296,11 +314,9 @@ const verifyRazorpay = async (req, res) => {
             razorpay_signature
         } = req.body;
 
-        const crypto = await import("crypto");
-
         const body = razorpay_order_id + "|" + razorpay_payment_id;
 
-        const expectedSignature = crypto.default
+        const expectedSignature = crypto
             .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
             .update(body)
             .digest("hex");
@@ -309,11 +325,12 @@ const verifyRazorpay = async (req, res) => {
 
             const booking = await bookingModel.findOneAndUpdate(
                 { razorpayOrderId: razorpay_order_id },
-                { payment: true },   // ✅ FIXED HERE
+                {
+                    payment: true,
+                    paymentId: razorpay_payment_id   // ✅ VERY IMPORTANT
+                },
                 { new: true }
             );
-
-            console.log("Updated Booking:", booking);
 
             res.json({ success: true });
 

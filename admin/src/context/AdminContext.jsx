@@ -2,61 +2,113 @@ import { useState } from "react";
 import { createContext } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+// import { set } from "mongoose";
 
-export const AdminContext = createContext()
+export const AdminContext = createContext();
 
 const AdminContextProvider = (props) => {
+  const [aToken, setAToken] = useState(
+    localStorage.getItem("aToken") ? localStorage.getItem("aToken") : "",
+  );
 
-    const [aToken, setAToken] = useState(localStorage.getItem('aToken') ? localStorage.getItem('aToken') : '')
+  const [workers, setWorkers] = useState([]);
 
-    const [workers, setWorkers] = useState([])
+  const [appointments, setAppointments] = useState([]);
 
-    const backendUrl = import.meta.env.VITE_BACKEND_URL
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-    // Getting all workers data from Database using API
-    const getAllWorkers = async () => {
-
-        try {
-            const { data } = await axios.get(backendUrl + '/api/admin/all-workers', { headers: { aToken } })
-            if (data.success) {
-                setWorkers(data.workers)
-                console.log(data.workers)
-            } else {
-                toast.error(data.message)
-            }
-        } catch (error) {
-            toast.error(error.message)
-        }
+  // Getting all workers data from Database using API
+  const getAllWorkers = async () => {
+    try {
+      const { data } = await axios.get(backendUrl + "/api/admin/all-workers", {
+        headers: { aToken },
+      });
+      if (data.success) {
+        setWorkers(data.workers);
+        console.log(data.workers);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
     }
+  };
 
-    // Function to change worker availablity using API
-    const changeAvailability = async (workerId) => {
-        try {
-
-            const { data } = await axios.post(backendUrl + '/api/admin/change-availability', { workerId }, { headers: { aToken } })
-            if (data.success) {
-                toast.success(data.message)
-                getAllWorkers()
-            } else {
-                toast.error(data.message)
-            }
-
-        } catch (error) {
-            console.log(error)
-            toast.error(error.message)
-        }
+  // Function to change worker availablity using API
+  const changeAvailability = async (workerId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/admin/change-availability",
+        { workerId },
+        { headers: { aToken } },
+      );
+      if (data.success) {
+        toast.success(data.message);
+        getAllWorkers();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
     }
+  };
 
-    const value = {
-        aToken, setAToken,
-        backendUrl, workers,
-        getAllWorkers, changeAvailability
+  // Getting all appointment data from Database using API
+  const getAllAppointments = async () => {
+    try {
+      const { data } = await axios.get(backendUrl + "/api/admin/appointments", {
+        headers: { aToken },
+      });
+      if (data.success) {
+        setAppointments(data.appointments.reverse());
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+      console.log(error);
     }
-    return (
-        <AdminContext.Provider value={value}>
-            {props.children}
-        </AdminContext.Provider>
-    )
-}
+  };
 
-export default AdminContextProvider
+  // Function to cancel appointment using API
+  const cancelAppointment = async (appointmentId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/admin/cancel-appointment",
+        { appointmentId },
+        { headers: { aToken } },
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+        getAllAppointments();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+      console.log(error);
+    }
+  };
+
+  const value = {
+    aToken,
+    setAToken,
+    backendUrl,
+    workers,
+    getAllWorkers,
+    changeAvailability,
+    appointments,
+    setAppointments,
+    getAllAppointments,
+    cancelAppointment,
+  };
+  return (
+    <AdminContext.Provider value={value}>
+      {props.children}
+    </AdminContext.Provider>
+  );
+};
+
+export default AdminContextProvider;
