@@ -11,9 +11,9 @@ import AllBookings from './pages/Admin/AllBookings';
 import AddWorker from './pages/Admin/AddWorker';
 import WorkersList from './pages/Admin/WorkersList';
 import { WorkerContext } from './context/WorkerContext';
-// import WorkerDashboard from './pages/Worker/WorkerDashboard';
-// import WorkerBookings from './pages/Worker/WorkerBookings';
-// import WorkerProfile from './pages/Worker/WorkerProfile';
+import WorkerAppointments from './pages/Worker/WorkerAppointments';
+import WorkerDashboard from './pages/Worker/WorkerDashboard';
+import WorkerProfile from './pages/Worker/WorkerProfile';
 
 
 const App = () => {
@@ -28,14 +28,17 @@ const App = () => {
       <div className='flex items-start'>
         <Sidebar />
         <Routes>
+          {/* admin route */}
           <Route path='/' element={<></>} />
           <Route path='/admin-dashboard' element={<Dashboard />} />
           <Route path='/all-bookings' element={<AllBookings />} />
           <Route path='/add-worker' element={<AddWorker />} />
           <Route path='/worker-list' element={<WorkersList />} />
-          {/* <Route path='/worker-dashboard' element={<WorkerDashboard />} />
-          <Route path='/worker-bookings' element={<WorkerBookings />} />
-          <Route path='/worker-profile' element={<WorkerProfile />} /> */}
+
+          {/* worker route */}
+          <Route path='/worker-dashboard' element={<WorkerDashboard />} />
+          <Route path='/worker-appointments' element={<WorkerAppointments />} />
+          <Route path='/worker-profile' element={<WorkerProfile />} />
         </Routes>
       </div>
     </div>

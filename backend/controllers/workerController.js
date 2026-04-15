@@ -1,6 +1,7 @@
 import workerModel from "../models/workerModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import bookingModel from "../models/bookingModel.js";
 
 // API to change worker availability
 const changeAvailablity = async (req, res) => {
@@ -74,4 +75,20 @@ const loginWorker = async (req, res) => {
     }
 };
 
-export { changeAvailablity, workerList, loginWorker };
+// API to get worker appointments for worker panel
+const workerAppointments = async (req, res) => {
+    try {
+
+        const workerId = req.workerId;
+
+        const appointments = await bookingModel.find({ docId: workerId });
+
+        res.json({ success: true, appointments });
+
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
+export { changeAvailablity, workerList, loginWorker, workerAppointments };
