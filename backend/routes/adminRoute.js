@@ -1,5 +1,5 @@
 import express from 'express'
-import { addWorker , loginAdmin, allWorkers, appointmentsAdmin, appointmentCancel} from '../controllers/adminController.js'
+import { addWorker , loginAdmin, allWorkers, appointmentsAdmin, appointmentCancel, adminDashboard} from '../controllers/adminController.js'
 import upload from '../middlewares/multer.js'
 import authAdmin from '../middlewares/authAdmin.js'
 import { changeAvailablity } from '../controllers/workerController.js'
@@ -17,5 +17,8 @@ adminRouter.post('/change-availability',authAdmin, changeAvailablity) //change w
 adminRouter.get('/appointments',authAdmin, appointmentsAdmin) //get all appointments route
 
 adminRouter.post('/cancel-appointment',authAdmin, appointmentCancel) //appointment cancellation route
+
+adminRouter.get('/dashboard' , authAdmin, adminDashboard) 
+
 
 export default adminRouter

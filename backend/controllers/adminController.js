@@ -1,16 +1,17 @@
 import validator from 'validator'
 import bcrypt from 'bcrypt'
-import {v2 as cloudinary} from 'cloudinary'
+import { v2 as cloudinary } from 'cloudinary'
 import workerModel from '../models/workerModel.js'
 import jwt from "jsonwebtoken";
 import bookingModel from '../models/bookingModel.js';
+import userModel from '../models/userModel.js'
 
 
 // api for adding worker
 const addWorker = async (req, res) => {
 
     try {
-        
+
         const { name, email, password, speciality, degree, experience, about, fees, address } = req.body
         const imageFile = req.file;
 
@@ -43,7 +44,7 @@ const addWorker = async (req, res) => {
         // upload image to cloudinary
         const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" });
         const imageUrl = imageUpload.secure_url
-        
+
         // save worker data to database
         const workerData = {
             name,
@@ -54,7 +55,7 @@ const addWorker = async (req, res) => {
             experience,
             about,
             fees,
-            address: typeof address === "string" ? JSON.parse(address) : address ,// convert address string to object
+            address: typeof address === "string" ? JSON.parse(address) : address,// convert address string to object
             image: imageUrl,
             date: Date.now()
         }
@@ -63,7 +64,7 @@ const addWorker = async (req, res) => {
         const newWorker = new workerModel(workerData)
         await newWorker.save()
 
-        res.json({ success: true, message: "Worker added successfully"})
+        res.json({ success: true, message: "Worker added successfully" })
 
     } catch (error) {
         console.log(error)
@@ -120,52 +121,74 @@ const appointmentsAdmin = async (req, res) => {
 
 // API for appointment cancellation
 const appointmentCancel = async (req, res) => {
-  try {
-    const { appointmentId } = req.body;
+    try {
+        const { appointmentId } = req.body;
 
-    const appointment = await bookingModel.findById(appointmentId);
+        const appointment = await bookingModel.findById(appointmentId);
 
-    if (!appointment) {
-      return res.json({ success: false, message: "Appointment not found" });
-    }
-
-    // 🔥 REMOVE SLOT FROM WORKER
-    const worker = await workerModel.findById(appointment.docId);
-
-    if (worker) {
-      let slots_booked = worker.slots_booked || {};
-
-      if (slots_booked[appointment.slotDate]) {
-        slots_booked[appointment.slotDate] =
-          slots_booked[appointment.slotDate].filter(
-            (time) => time !== appointment.slotTime
-          );
-
-        if (slots_booked[appointment.slotDate].length === 0) {
-          delete slots_booked[appointment.slotDate];
+        if (!appointment) {
+            return res.json({ success: false, message: "Appointment not found" });
         }
 
-        await workerModel.findByIdAndUpdate(appointment.docId, {
-          slots_booked,
+        // 🔥 REMOVE SLOT FROM WORKER
+        const worker = await workerModel.findById(appointment.docId);
+
+        if (worker) {
+            let slots_booked = worker.slots_booked || {};
+
+            if (slots_booked[appointment.slotDate]) {
+                slots_booked[appointment.slotDate] =
+                    slots_booked[appointment.slotDate].filter(
+                        (time) => time !== appointment.slotTime
+                    );
+
+                if (slots_booked[appointment.slotDate].length === 0) {
+                    delete slots_booked[appointment.slotDate];
+                }
+
+                await workerModel.findByIdAndUpdate(appointment.docId, {
+                    slots_booked,
+                });
+            }
+        }
+
+        // ✅ CANCEL BOOKING
+        appointment.cancelled = true;
+        await appointment.save();
+
+        res.json({
+            success: true,
+            message: "Appointment cancelled & slot updated",
         });
-      }
+
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
     }
-
-    // ✅ CANCEL BOOKING
-    appointment.cancelled = true;
-    await appointment.save();
-
-    res.json({
-      success: true,
-      message: "Appointment cancelled & slot updated",
-    });
-
-  } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message });
-  }
 };
 
+// API to get dashboard data for admin panel
+const adminDashboard = async (req, res) => {
+    try {
+
+        const workers = await workerModel.find({})
+        const users = await userModel.find({})
+        const bookings = await bookingModel.find({})
+
+        const dashData = {
+            doctors: workers.length,
+            appointments: bookings.length,
+            patients: users.length,
+            latestAppointments: bookings.reverse().slice(0, 5)
+        }
+
+        res.json({ success: true, dashData })
+
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, message: error.message })
+    }
+}
 
 
-export {addWorker, loginAdmin, allWorkers, appointmentsAdmin, appointmentCancel}
+export { addWorker, loginAdmin, allWorkers, appointmentsAdmin, appointmentCancel, adminDashboard }
