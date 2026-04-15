@@ -10,6 +10,7 @@ import Dashboard from './pages/Admin/Dashboard';
 import AllBookings from './pages/Admin/AllBookings';
 import AddWorker from './pages/Admin/AddWorker';
 import WorkersList from './pages/Admin/WorkersList';
+import { WorkerContext } from './context/WorkerContext';
 // import WorkerDashboard from './pages/Worker/WorkerDashboard';
 // import WorkerBookings from './pages/Worker/WorkerBookings';
 // import WorkerProfile from './pages/Worker/WorkerProfile';
@@ -18,8 +19,9 @@ import WorkersList from './pages/Admin/WorkersList';
 const App = () => {
 
   const {aToken} = useContext(AdminContext)
+  const {dToken} = useContext(WorkerContext)
 
-  return aToken ? (
+  return aToken || dToken ? (
     <div className='bg-[#F8F9FD]'>
       <ToastContainer />
       <Navbar />
