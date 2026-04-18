@@ -91,4 +91,78 @@ const workerAppointments = async (req, res) => {
     }
 };
 
-export { changeAvailablity, workerList, loginWorker, workerAppointments };
+// API to mark appointment completed for worker panel
+const appointmentComplete = async (req, res) => {
+    try {
+
+        const { appointmentId } = req.body;
+        const workerId = req.workerId;
+
+        const appointmentData = await bookingModel.findById(appointmentId)
+        if (appointmentData && appointmentData.docId === workerId) {
+            await bookingModel.findByIdAndUpdate(appointmentId, { isCompleted: true })
+            return res.json({ success: true, message: 'Appointment Completed' })
+        }
+
+        res.json({ success: false, message: 'Appointment Cancelled' })
+
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, message: error.message })
+    }
+
+}
+
+// API to cancel appointment for worker panel
+const appointmentCancel = async (req, res) => {
+    try {
+
+        const { appointmentId } = req.body;
+        const workerId = req.workerId;
+
+        const appointmentData = await bookingModel.findById(appointmentId)
+        if (appointmentData && appointmentData.docId === workerId) {
+            await bookingModel.findByIdAndUpdate(appointmentId, { cancelled: true })
+            return res.json({ success: true, message: 'Appointment Cancelled' })
+        }
+
+        res.json({ success: false, message: 'Appointment Cancelled' })
+
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, message: error.message })
+    }
+
+}
+
+// worker dashboard API
+const workerDashboard = async (req, res) => {
+  try {
+    const workerId = req.workerId;
+
+    const appointments = await bookingModel.find({ docId: workerId });
+
+    let earnings = 0;
+    let patients = new Set();
+
+    appointments.forEach((item) => {
+      if (item.isCompleted || item.payment) {
+        earnings += item.amount;
+      }
+      patients.add(item.userId);
+    });
+
+    const dashData = {
+      earnings,
+      appointments: appointments.length,
+      patients: patients.size,
+      latestAppointments: [...appointments].reverse(),
+    };
+
+    res.json({ success: true, dashData });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export { changeAvailablity, workerList, loginWorker, workerAppointments, appointmentComplete, appointmentCancel , workerDashboard };

@@ -74,7 +74,7 @@ const AllBookings = () => {
 
             {/* Fees */}
             <p>
-              {currency}
+              ₹
               {item.amount}
             </p>
 

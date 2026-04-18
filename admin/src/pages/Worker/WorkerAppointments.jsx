@@ -4,7 +4,7 @@ import { assets } from '../../assets/assets'
 
 const WorkerAppointments = () => {
 
-  const { dToken, appointments, getAppointments } = useContext(WorkerContext)
+  const { dToken, appointments, getAppointments , completeAppointment, cancelAppointment } = useContext(WorkerContext)
 
   useEffect(() => {
     if (dToken) {
@@ -45,7 +45,7 @@ const WorkerAppointments = () => {
         </div>
 
         {/* Data */}
-        {appointments.map((item, index) => (
+        {appointments.reverse().map((item, index) => (
           <div
             key={index}
             className='flex flex-wrap justify-between max-sm:gap-5 sm:grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr] gap-1 items-center text-gray-500 py-3 px-6 border-b hover:bg-gray-50'
@@ -89,8 +89,8 @@ const WorkerAppointments = () => {
                 : item.isCompleted
                   ? <p className='text-green-500 text-xs font-medium'>Completed</p>
                   : <div className='flex gap-2'>
-                      <img className='w-8 cursor-pointer' src={assets.cancel_icon} alt="" />
-                      <img className='w-8 cursor-pointer' src={assets.tick_icon} alt="" />
+                      <img onClick={()=>cancelAppointment(item._id)} className='w-8 cursor-pointer' src={assets.cancel_icon} alt="" />
+                      <img onClick={()=>completeAppointment(item._id)} className='w-8 cursor-pointer' src={assets.tick_icon} alt="" />
                     </div>
             }
 
