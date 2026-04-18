@@ -165,4 +165,39 @@ const workerDashboard = async (req, res) => {
   }
 };
 
-export { changeAvailablity, workerList, loginWorker, workerAppointments, appointmentComplete, appointmentCancel , workerDashboard };
+// API to get worker profile for  worker Panel
+const workerProfile = async (req, res) => {
+  try {
+    const workerId = req.workerId;
+
+    const profileData = await workerModel
+      .findById(workerId)
+      .select('-password');
+
+    res.json({ success: true, profileData });
+
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// API to update worker profile data from  Worker Panel
+const updateWorkerProfile = async (req, res) => {
+  try {
+    const workerId = req.workerId;
+    const { fees, address, available } = req.body;
+
+    await workerModel.findByIdAndUpdate(workerId, {
+      fees,
+      address,
+      available
+    });
+
+    res.json({ success: true, message: 'Profile Updated' });
+
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export { changeAvailablity, workerList, loginWorker, workerAppointments, appointmentComplete, appointmentCancel , workerDashboard, workerProfile, updateWorkerProfile };

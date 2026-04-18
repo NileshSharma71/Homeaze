@@ -16,6 +16,8 @@ const WorkerContextProvider = (props) => {
 
   const [dashData, setDashData] = useState(false);
 
+  const [profileData, setProfileData] = useState(false);
+
   // Getting worker appointment data from Database using API
   const getAppointments = async () => {
     try {
@@ -83,15 +85,29 @@ const WorkerContextProvider = (props) => {
   // Getting Doctor dashboard data using API
   const getDashData = async () => {
     try {
-      const { data } = await axios.get(backendUrl + "/api/worker/dashboard", 
-        { headers: { dtoken: dToken } },
-    );
+      const { data } = await axios.get(backendUrl + "/api/worker/dashboard", {
+        headers: { dtoken: dToken },
+      });
 
       if (data.success) {
         setDashData(data.dashData);
       } else {
         toast.error(data.message);
       }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  // Getting worker profile data from Database using API
+  const getProfileData = async () => {
+    try {
+      const { data } = await axios.get(backendUrl + "/api/worker/profile", {
+        headers: { dtoken: dToken },
+      });
+      console.log(data.profileData);
+      setProfileData(data.profileData);
     } catch (error) {
       console.log(error);
       toast.error(error.message);
@@ -109,6 +125,9 @@ const WorkerContextProvider = (props) => {
     dashData,
     getDashData,
     setDashData,
+    profileData,
+    setProfileData,
+    getProfileData,
   };
   return (
     <WorkerContext.Provider value={value}>

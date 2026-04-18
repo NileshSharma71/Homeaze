@@ -175,7 +175,7 @@ const MyBookings = () => {
 
             <div className="flex flex-col gap-2 justify-end">
               {/* Pay Button (only if not paid) */}
-              {!item.payment && !item.cancelled && (
+              {!item.payment && !item.cancelled && !item.isCompleted && (
                 <button
                   onClick={() => appointmentRazorpay(item._id)}
                   className="text-sm py-2 border rounded hover:bg-primary hover:text-white"
@@ -185,7 +185,7 @@ const MyBookings = () => {
               )}
 
               {/* Cancel Button (ALLOW even after payment) */}
-              {!item.cancelled && (
+              {!item.cancelled && !item.isCompleted && (
                 <button
                   onClick={() => cancelAppointment(item._id)}
                   className="text-sm py-2 border rounded hover:bg-red-600 hover:text-white"
@@ -195,18 +195,26 @@ const MyBookings = () => {
               )}
 
               {/* Paid */}
-              {item.payment && !item.cancelled && (
+              {item.payment && !item.cancelled && !item.isCompleted && (
                 <button className="text-sm text-green-600 py-2 border rounded bg-green-100">
                   Paid
                 </button>
               )}
 
               {/* Cancelled */}
-              {item.cancelled && (
+              {item.cancelled && !item.isCompleted && (
                 <button className="text-sm text-red-500 py-2 border rounded bg-red-100">
                   Booking Cancelled
                 </button>
               )}
+
+              {/* Completed */}
+              {item.isCompleted && (
+                <button className="text-sm text-blue-600 py-2 border rounded bg-blue-100">
+                  Booking Completed
+                </button>
+              )}
+
             </div>
           </div>
         ))}

@@ -45,8 +45,8 @@ const Workers = () => {
                 <div onClick={() => navigate(`/booking/${item._id}`)}  className='border border-[#C9D8FF] rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500' key={index}>
                     <img className='w-full h-48 object-cover bg-[#EAEFFF]' src={item.image} alt="" />{/* worker image 'object-cover use' */}
                     <div className='p-4'>
-                        <div className='flex items-center gap-2 text-sm text-center text-green-500'>
-                            <p className='w-2 h-2 bg-green-500 rounded-full'></p><p>Available</p>
+                        <div className={`flex items-center gap-2 text-sm text-center ${item.available ? 'text-green-500' : 'text-red-500'}}`}>
+                            <p className={`w-2 h-2 ${item.available ? 'bg-green-500' : 'bg-red-500'} rounded-full`}></p><p>{item.available ? 'Available' : 'Not Available'}</p>
                         </div>
                         <p className='text-[#262626] text-lg font-medium'>{item.name}</p>
                         <p className='text-[#5C5C5C] text-sm'>{item.speciality}</p>
