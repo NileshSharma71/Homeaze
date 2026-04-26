@@ -2,6 +2,9 @@ import workerModel from "../models/workerModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import bookingModel from "../models/bookingModel.js";
+import { OAuth2Client } from "google-auth-library";
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // API to change worker availability
 const changeAvailablity = async (req, res) => {
@@ -200,4 +203,32 @@ const updateWorkerProfile = async (req, res) => {
   }
 };
 
-export { changeAvailablity, workerList, loginWorker, workerAppointments, appointmentComplete, appointmentCancel , workerDashboard, workerProfile, updateWorkerProfile };
+// API for Google login (worker must already exist in DB)
+const googleLoginWorker = async (req, res) => {
+    try {
+        const { credential } = req.body;
+
+        const ticket = await googleClient.verifyIdToken({
+            idToken: credential,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+        const { email } = payload;
+
+        const worker = await workerModel.findOne({ email });
+
+        if (!worker) {
+            return res.json({ success: false, message: "Worker not registered. Contact admin." });
+        }
+
+        const token = jwt.sign({ id: worker._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+        res.json({ success: true, token });
+
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
+export { changeAvailablity, workerList, loginWorker, googleLoginWorker, workerAppointments, appointmentComplete, appointmentCancel, workerDashboard, workerProfile, updateWorkerProfile };

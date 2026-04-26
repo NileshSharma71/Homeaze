@@ -3,6 +3,7 @@ import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
   const { backendUrl, token, setToken } = useContext(AppContext);
@@ -45,11 +46,30 @@ const Login = () => {
     }
   };
 
-  useEffect(() => {
-      if (token) {
-        navigate('/')
+  // Google login handler
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const { data } = await axios.post(backendUrl + "/api/user/google-login", {
+        credential: credentialResponse.credential,
+      });
+
+      if (data.success) {
+        localStorage.setItem("token", data.token);
+        setToken(data.token);
+        toast.success("Google login successful!");
+      } else {
+        toast.error(data.message);
       }
-    }, [token])
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    if (token) {
+      navigate("/");
+    }
+  }, [token]);
 
   return (
     <form onSubmit={onSubmitHandler} className="min-h-[80vh] flex items-center">
@@ -96,6 +116,26 @@ const Login = () => {
         <button type="submit" className="bg-primary text-white w-full py-2 my-2 rounded-md text-base">
           {state === "Sign Up" ? "Create Account" : "Login"}
         </button>
+
+        {/* Google Login Divider */}
+        <div className="flex items-center gap-3 w-full my-1">
+          <hr className="flex-1 border-gray-300" />
+          <span className="text-gray-400 text-xs">OR</span>
+          <hr className="flex-1 border-gray-300" />
+        </div>
+
+        {/* Google Login Button */}
+        <div className="w-full flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => toast.error("Google login failed")}
+            theme="outline"
+            size="large"
+            width="100%"
+            text={state === "Sign Up" ? "signup_with" : "signin_with"}
+          />
+        </div>
+
         {state === "Sign Up" ? (
           <p>
             Already have an account?{" "}

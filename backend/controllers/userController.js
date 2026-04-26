@@ -5,9 +5,11 @@ import jwt from "jsonwebtoken";
 import { v2 as cloudinary } from "cloudinary";
 import workerModel from "../models/workerModel.js";
 import bookingModel from "../models/bookingModel.js";
-// import stripe from "stripe";
+import { OAuth2Client } from "google-auth-library";
 import razorpay from 'razorpay';
 import crypto from "crypto";
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // api to register user
 const registerUser = async (req, res) => {
@@ -344,10 +346,49 @@ const verifyRazorpay = async (req, res) => {
 };
 
 
+// API for Google login
+const googleLogin = async (req, res) => {
+    try {
+        const { credential } = req.body;
+
+        const ticket = await googleClient.verifyIdToken({
+            idToken: credential,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+        const { sub: googleId, email, name, picture } = payload;
+
+        let user = await userModel.findOne({ email });
+
+        if (!user) {
+            user = await userModel.create({
+                name,
+                email,
+                googleId,
+                image: picture,
+                authProvider: 'google',
+            });
+        } else if (!user.googleId) {
+            user.googleId = googleId;
+            user.authProvider = user.authProvider === 'local' ? 'both' : user.authProvider;
+            await user.save();
+        }
+
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+        res.json({ success: true, token });
+
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
 // export controllers
 export {
     registerUser,
     loginUser,
+    googleLogin,
     getProfile,
     updateProfile,
     bookAppointment,
