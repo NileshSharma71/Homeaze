@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react'
 import { WorkerContext } from '../../context/WorkerContext'
-import { AppContext } from '../../context/AppContext'
+import { AppContext } from '../../context/Appcontext'
 import { assets } from '../../assets/assets'
 
 const WorkerDashboard = () => {
