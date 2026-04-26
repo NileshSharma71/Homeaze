@@ -6,6 +6,7 @@ import connectCloudinary from './config/cloudinary.js'
 import adminRouter from './routes/adminRoute.js'
 import workerRouter from './routes/workerRoute.js'
 import userRouter from './routes/userRoute.js'
+import aiRouter from './routes/aiRoute.js'
 
 //app config
 const app = express()
@@ -24,6 +25,8 @@ app.use("/api/admin", adminRouter) //admin routes
 app.use("/api/worker", workerRouter) //worker routes
 
 app.use("/api/user", userRouter) //user routes
+
+app.use("/api/ai", aiRouter) //ai routes
 
 
 app.get("/", (req, res) => {

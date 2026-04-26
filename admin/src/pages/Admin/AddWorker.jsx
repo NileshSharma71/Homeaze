@@ -17,6 +17,7 @@ const AddWorker = () => {
   const [degree, setDegree] = useState("");
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
+  const [generatingBio, setGeneratingBio] = useState(false);
 
   const { backendUrl } = useContext(AppContext);
   const { aToken } = useContext(AdminContext);
@@ -73,6 +74,29 @@ const AddWorker = () => {
       toast.error(error.message);
       console.log(error);
     }
+  };
+
+  // AI Bio Generator
+  const generateBio = async () => {
+    if (!name || !speciality) {
+      return toast.error("Please fill Name and Speciality first");
+    }
+    setGeneratingBio(true);
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/ai/generate-bio",
+        { name, speciality, experience, degree }
+      );
+      if (data.success) {
+        setAbout(data.bio);
+        toast.success("Bio generated!");
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+    setGeneratingBio(false);
   };
 
   return (
@@ -229,13 +253,23 @@ const AddWorker = () => {
 
         {/* about section */}
         <div>
-          <p className="mt-4 mb-2">About Worker</p>
+          <div className="flex items-center gap-3 mt-4 mb-2">
+            <p>About Worker</p>
+            <button
+              type="button"
+              onClick={generateBio}
+              disabled={generatingBio}
+              className="text-xs bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1 rounded-full hover:bg-blue-100 transition-all disabled:opacity-50"
+            >
+              {generatingBio ? "Generating..." : "✨ AI Generate Bio"}
+            </button>
+          </div>
           <textarea
             onChange={(e) => setAbout(e.target.value)}
             value={about}
             className="w-full px-4 pt-2 border rounded"
             rows={5}
-            placeholder="Write about worker"
+            placeholder="Write about worker or click AI Generate Bio"
             required
           ></textarea>
         </div>
