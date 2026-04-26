@@ -6,9 +6,11 @@ COPY package*.json ./
 RUN npm ci
 COPY . .
 
-# Pass backend URL at build time
+# Pass env vars at build time (Vite bakes them into the bundle)
 ARG VITE_BACKEND_URL=http://localhost:4000
+ARG VITE_GOOGLE_CLIENT_ID
 ENV VITE_BACKEND_URL=$VITE_BACKEND_URL
+ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
 
 RUN npm run build
 

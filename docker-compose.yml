@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: formal_homie_backend
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./backend/.env
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - VITE_BACKEND_URL=http://localhost:4000
+        - VITE_RAZORPAY_KEY_ID=rzp_test_ScAxiJch6YFw68
+        - VITE_GOOGLE_CLIENT_ID=629267029789-0ksdaofecp48j2tf0grnn4j2t3vars17.apps.googleusercontent.com
+    container_name: formal_homie_frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  admin:
+    build:
+      context: ./admin
+      args:
+        - VITE_BACKEND_URL=http://localhost:4000
+        - VITE_GOOGLE_CLIENT_ID=629267029789-0ksdaofecp48j2tf0grnn4j2t3vars17.apps.googleusercontent.com
+    container_name: formal_homie_admin
+    ports:
+      - "5174:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
