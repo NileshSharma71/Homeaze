@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useContext, useEffect, useState } from 'react'
 import { WorkerContext } from '../../context/WorkerContext'
 import { AppContext } from '../../context/AppContext'
@@ -206,4 +207,14 @@ const WorkerProfile = () => {
   )
 }
 
+=======
+import React from 'react'
+
+const WorkerProfile = () => {
+  return (
+    <div>WorkerProfile</div>
+  )
+}
+
+>>>>>>> 69b6e65 (Add existing project files and Ubuntu setup)
 export default WorkerProfile

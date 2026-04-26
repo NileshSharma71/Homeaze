@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useContext, useEffect } from 'react'
 import { WorkerContext } from '../../context/WorkerContext'
 import { AppContext } from '../../context/AppContext'
@@ -110,4 +111,14 @@ const WorkerDashboard = () => {
   )
 }
 
+=======
+import React from 'react'
+
+const WorkerDashboard = () => {
+  return (
+    <div>WorkerDashboard</div>
+  )
+}
+
+>>>>>>> 69b6e65 (Add existing project files and Ubuntu setup)
 export default WorkerDashboard
