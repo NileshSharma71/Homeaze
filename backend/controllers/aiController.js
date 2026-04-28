@@ -1,6 +1,6 @@
-import genAI from "../config/gemini.js";
+import groq from "../config/groq.js";
 
-// API to generate worker bio using Gemini
+// API to generate worker bio using Groq
 const generateBio = async (req, res) => {
     try {
         const { name, speciality, experience, degree } = req.body;
@@ -19,9 +19,14 @@ Details:
 
 Write ONLY the bio text, no quotes or labels.`;
 
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-        const result = await model.generateContent(prompt);
-        const bio = result.response.text().trim();
+        const result = await groq.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.7,
+            max_tokens: 200,
+        });
+
+        const bio = result.choices[0].message.content.trim();
 
         res.json({ success: true, bio });
 
