@@ -257,32 +257,37 @@ const cancelAppointment = async (req, res) => {
     await appointment.save();
 
     // Handle refund and email
-    if (appointment.payment && appointment.paymentId) {
-        // Initiate refund
-        await razorpayInstance.payments.refund(appointment.paymentId, {
-            amount: appointment.amount * 100, // Amount in paise
-            speed: "optimum" // optimum or normal
-        });
+    try {
+        if (appointment.payment && appointment.paymentId) {
+            // Initiate refund
+            await razorpayInstance.payments.refund(appointment.paymentId, {
+                amount: appointment.amount * 100, // Amount in paise
+                speed: "optimum" // optimum or normal
+            });
 
-        // Send email
-        await sendRefundNotificationEmail(
-            appointment.userData.email,
-            appointment.userData.name,
-            appointment.amount,
-            appointment.docData.name,
-            appointment.slotDate,
-            appointment.slotTime
-        );
-    } else if (appointment.userData && appointment.userData.email) {
-        // Just send cancellation email, no refund
-        await sendRefundNotificationEmail(
-            appointment.userData.email,
-            appointment.userData.name,
-            0, // no refund
-            appointment.docData.name,
-            appointment.slotDate,
-            appointment.slotTime
-        );
+            // Send email
+            await sendRefundNotificationEmail(
+                appointment.userData.email,
+                appointment.userData.name,
+                appointment.amount,
+                appointment.docData.name,
+                appointment.slotDate,
+                appointment.slotTime
+            );
+        } else if (appointment.userData && appointment.userData.email) {
+            // Just send cancellation email, no refund
+            await sendRefundNotificationEmail(
+                appointment.userData.email,
+                appointment.userData.name,
+                0, // no refund
+                appointment.docData.name,
+                appointment.slotDate,
+                appointment.slotTime
+            );
+        }
+    } catch (refundError) {
+        console.error("Refund or Email Error:", refundError);
+        // We log the error but don't stop the cancellation process
     }
 
     res.json({
