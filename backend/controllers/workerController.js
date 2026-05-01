@@ -149,38 +149,34 @@ const appointmentCancel = async (req, res) => {
                 }
             }
 
-            // Handle refund and email
-            try {
-                if (appointmentData.payment && appointmentData.paymentId) {
-                    // Initiate refund
+            // Handle refund
+            let refundSuccessful = false;
+            if (appointmentData.payment && appointmentData.paymentId) {
+                try {
                     await razorpayInstance.payments.refund(appointmentData.paymentId, {
-                        amount: appointmentData.amount * 100, // Amount in paise
+                        amount: Math.round(appointmentData.amount * 100), // Amount in paise
                         speed: "optimum" // optimum or normal
                     });
+                    refundSuccessful = true;
+                } catch (refundError) {
+                    console.error("Refund Error:", refundError);
+                }
+            }
 
-                    // Send email
+            // Send email
+            try {
+                if (appointmentData.userData && appointmentData.userData.email) {
                     await sendRefundNotificationEmail(
                         appointmentData.userData.email,
                         appointmentData.userData.name,
-                        appointmentData.amount,
-                        appointmentData.docData.name,
-                        appointmentData.slotDate,
-                        appointmentData.slotTime
-                    );
-                } else if (appointmentData.userData && appointmentData.userData.email) {
-                    // Just send cancellation email, no refund
-                    await sendRefundNotificationEmail(
-                        appointmentData.userData.email,
-                        appointmentData.userData.name,
-                        0, // no refund
+                        (appointmentData.payment && appointmentData.paymentId && refundSuccessful) ? appointmentData.amount : 0,
                         appointmentData.docData.name,
                         appointmentData.slotDate,
                         appointmentData.slotTime
                     );
                 }
-            } catch (refundError) {
-                console.error("Refund or Email Error:", refundError);
-                // We log the error but don't stop the cancellation process
+            } catch (emailError) {
+                console.error("Email Error:", emailError);
             }
 
             return res.json({ success: true, message: 'Appointment Cancelled' })
@@ -206,7 +202,7 @@ const workerDashboard = async (req, res) => {
     let patients = new Set();
 
     appointments.forEach((item) => {
-      if (item.isCompleted || item.payment) {
+      if (!item.cancelled && (item.isCompleted || item.payment)) {
         earnings += item.amount;
       }
       patients.add(item.userId);

@@ -256,38 +256,34 @@ const cancelAppointment = async (req, res) => {
     appointment.cancelled = true;
     await appointment.save();
 
-    // Handle refund and email
-    try {
-        if (appointment.payment && appointment.paymentId) {
-            // Initiate refund
+    // Handle refund
+    let refundSuccessful = false;
+    if (appointment.payment && appointment.paymentId) {
+        try {
             await razorpayInstance.payments.refund(appointment.paymentId, {
-                amount: appointment.amount * 100, // Amount in paise
+                amount: Math.round(appointment.amount * 100), // Amount in paise
                 speed: "optimum" // optimum or normal
             });
+            refundSuccessful = true;
+        } catch (refundError) {
+            console.error("Refund Error:", refundError);
+        }
+    }
 
-            // Send email
+    // Send email
+    try {
+        if (appointment.userData && appointment.userData.email) {
             await sendRefundNotificationEmail(
                 appointment.userData.email,
                 appointment.userData.name,
-                appointment.amount,
-                appointment.docData.name,
-                appointment.slotDate,
-                appointment.slotTime
-            );
-        } else if (appointment.userData && appointment.userData.email) {
-            // Just send cancellation email, no refund
-            await sendRefundNotificationEmail(
-                appointment.userData.email,
-                appointment.userData.name,
-                0, // no refund
+                (appointment.payment && appointment.paymentId && refundSuccessful) ? appointment.amount : 0,
                 appointment.docData.name,
                 appointment.slotDate,
                 appointment.slotTime
             );
         }
-    } catch (refundError) {
-        console.error("Refund or Email Error:", refundError);
-        // We log the error but don't stop the cancellation process
+    } catch (emailError) {
+        console.error("Email Error:", emailError);
     }
 
     res.json({
