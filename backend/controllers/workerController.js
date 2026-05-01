@@ -3,8 +3,15 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import bookingModel from "../models/bookingModel.js";
 import { OAuth2Client } from "google-auth-library";
+import razorpay from "razorpay";
+import { sendRefundNotificationEmail } from "../utils/emailService.js";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+const razorpayInstance = new razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
 // API to change worker availability
 const changeAvailablity = async (req, res) => {
@@ -126,6 +133,51 @@ const appointmentCancel = async (req, res) => {
         const appointmentData = await bookingModel.findById(appointmentId)
         if (appointmentData && appointmentData.docId === workerId) {
             await bookingModel.findByIdAndUpdate(appointmentId, { cancelled: true })
+
+            // Releasing the slot in worker model
+            const worker = await workerModel.findById(workerId);
+            if (worker) {
+                let slots_booked = worker.slots_booked || {};
+                if (slots_booked[appointmentData.slotDate]) {
+                    slots_booked[appointmentData.slotDate] = slots_booked[appointmentData.slotDate].filter(
+                        (time) => time !== appointmentData.slotTime
+                    );
+                    if (slots_booked[appointmentData.slotDate].length === 0) {
+                        delete slots_booked[appointmentData.slotDate];
+                    }
+                    await workerModel.findByIdAndUpdate(workerId, { slots_booked });
+                }
+            }
+
+            // Handle refund and email
+            if (appointmentData.payment && appointmentData.paymentId) {
+                // Initiate refund
+                await razorpayInstance.payments.refund(appointmentData.paymentId, {
+                    amount: appointmentData.amount * 100, // Amount in paise
+                    speed: "optimum" // optimum or normal
+                });
+
+                // Send email
+                await sendRefundNotificationEmail(
+                    appointmentData.userData.email,
+                    appointmentData.userData.name,
+                    appointmentData.amount,
+                    appointmentData.docData.name,
+                    appointmentData.slotDate,
+                    appointmentData.slotTime
+                );
+            } else if (appointmentData.userData && appointmentData.userData.email) {
+                // Just send cancellation email, no refund
+                await sendRefundNotificationEmail(
+                    appointmentData.userData.email,
+                    appointmentData.userData.name,
+                    0, // no refund
+                    appointmentData.docData.name,
+                    appointmentData.slotDate,
+                    appointmentData.slotTime
+                );
+            }
+
             return res.json({ success: true, message: 'Appointment Cancelled' })
         }
 

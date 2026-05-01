@@ -8,6 +8,7 @@ import bookingModel from "../models/bookingModel.js";
 import { OAuth2Client } from "google-auth-library";
 import razorpay from 'razorpay';
 import crypto from "crypto";
+import { sendRefundNotificationEmail } from "../utils/emailService.js";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -254,6 +255,35 @@ const cancelAppointment = async (req, res) => {
 
     appointment.cancelled = true;
     await appointment.save();
+
+    // Handle refund and email
+    if (appointment.payment && appointment.paymentId) {
+        // Initiate refund
+        await razorpayInstance.payments.refund(appointment.paymentId, {
+            amount: appointment.amount * 100, // Amount in paise
+            speed: "optimum" // optimum or normal
+        });
+
+        // Send email
+        await sendRefundNotificationEmail(
+            appointment.userData.email,
+            appointment.userData.name,
+            appointment.amount,
+            appointment.docData.name,
+            appointment.slotDate,
+            appointment.slotTime
+        );
+    } else if (appointment.userData && appointment.userData.email) {
+        // Just send cancellation email, no refund
+        await sendRefundNotificationEmail(
+            appointment.userData.email,
+            appointment.userData.name,
+            0, // no refund
+            appointment.docData.name,
+            appointment.slotDate,
+            appointment.slotTime
+        );
+    }
 
     res.json({
       success: true,

@@ -14,7 +14,8 @@ const bookingSchema = new mongoose.Schema({
     isCompleted: { type: Boolean, default: false },
 
     // added
-    razorpayOrderId: { type: String }
+    razorpayOrderId: { type: String },
+    paymentId: { type: String }
 })
 
 const bookingModel = mongoose.models.booking || mongoose.model("booking", bookingSchema)
