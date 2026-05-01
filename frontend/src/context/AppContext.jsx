@@ -5,8 +5,6 @@ import axios from "axios";
 export const AppContext = createContext();
 
 const AppContextProvider = (props) => {
-
-  const url = "https://homeaze.onrender.com"
   
   const currencySymbol = "₹";
 
