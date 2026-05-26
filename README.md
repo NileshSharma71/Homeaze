@@ -273,8 +273,9 @@ docker-compose up --build
 
 ## 🌐 Deployment
 
-- **Backend** is deployed on **[Render](https://render.com)**
-- **Frontend & Admin** are deployed on **[Vercel](https://vercel.com)**
+- **Backend** is deployed on **[Render](https://homeaze.onrender.com)**
+- **Frontend** is deployed on **[Vercel](https://homeaze-frontend.onrender.com)**
+- **Admin** is deployed on **[Vercel](https://homeaze-admin.onrender.com)**
 
 ---
 
