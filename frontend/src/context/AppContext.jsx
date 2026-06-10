@@ -48,6 +48,10 @@ const AppContextProvider = (props) => {
         setUserData(data.userData);
       } else {
         toast.error(data.message);
+        // Clear invalid/expired token so user can log in again
+        setToken("");
+        setUserData(false);
+        localStorage.removeItem("token");
       }
     } catch (error) {
       console.log(error);
